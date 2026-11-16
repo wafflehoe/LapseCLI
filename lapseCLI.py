@@ -40,8 +40,12 @@ def getClientId():
 def getAuthToken():
     client_id = getClientId()
     code_verifier, code_challenge = generatePKCE()
-    client = AsyncOAuth2Client(client_id=client_id, code_challenge_method="S256", redirect_uri="http://localhost:8081", scope="timelapse:read timelapse:write snapshot:read snapshot:write")
-    uri, state = client.create_authorization_url(api_url + "/auth/authorize", code_verifier=code_challenge)
+    client = AsyncOAuth2Client(
+        client_id=client_id, 
+        code_challenge_method="S256", 
+        redirect_uri="http://localhost:8081", 
+        scope="timelapse:read timelapse:write snapshot:read snapshot:write")
+    uri, state = client.create_authorization_url(api_url + "/auth/authorize", code_verifier=code_verifier)
     print(uri)
 
 
@@ -78,9 +82,10 @@ def getAuthToken():
             "code": authorizationCode, 
             "redirect_uri": "http://localhost:8081", 
             "grant_type": "authorization_code", 
-            "code_verifier": code_verifier
+            "code_verifier": code_verifier,
+            "client_secret": ""
             },
-        headers={"Content-Type": "application/x-www-form-urlencoded"}
+        headers={"Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json"}
         )
 
     print(response.text)
