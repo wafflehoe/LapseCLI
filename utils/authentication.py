@@ -12,9 +12,15 @@ import secrets
 import hashlib
 import base64
 
+#registration
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+
 #for config
-import pathlib
+from pathlib import Path
 import json
+
+
+configPath = Path(__file__).resolve().parent.parent / "config" / "userConfig.json"
 
 def generatePKCE():
     code_verifier = secrets.token_urlsafe(64)
@@ -74,5 +80,34 @@ def getAuthToken(api_url, port):
         headers={"Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json"}
         )
 
-    print(response.text)
+    jsonified = None
+    with open(configPath, "r") as file:
+        jsonified = json.load(file)
+        jsonified["userToken"] = response.json()["access_token"]
+
+    with open(configPath, "w") as file:
+
+        recoded = json.dumps(jsonified)
+        file.write(recoded)
+
+    
+    pass
+
+
+# register!!! Didn't even know i had to do this btw
+
+def registerDevice(api_url):
+    key = AESGCM.generate_key(128).hex()
+
+    userToken = "YARRR"
+    with open(configPath, "r") as file:
+        jsonified = json.load(file)
+        userToken = jsonified["userToken"]
+
+    httpx2.post(
+        url=api_url + "/device/register",
+        headers= {
+            "Authorization": "Bearer " + userToken
+        }
+    )
     pass

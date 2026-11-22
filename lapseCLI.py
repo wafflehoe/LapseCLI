@@ -14,6 +14,7 @@ import utils.upload
 
 # Variables
 api_url = "https://api.lapse.hackclub.com/api"
+actual_url = "https://lapse.hackclub.com/api"
 auth_url = "https://hackatime.hackclub.com"
 port = 8081
 
@@ -30,6 +31,9 @@ def main():
     if (args.option == "config"):
         if (args.secondaryAction == "token"):
             utils.authentication.getAuthToken(api_url, port)
+        elif (args.secondaryAction == "register"):
+            utils.authentication.registerDevice(api_url)
+            pass
     elif (args.option == "timelapse"):
         if (args.secondaryAction == "record"):
             subprocess.Popen(
@@ -53,6 +57,8 @@ def main():
             elif yarr.lower() == ("y" or "yes" or "") :
                 print("Got it!") 
                 utils.upload.initialize()
+                utils.upload.beginUpload(api_url)
+                
             else:
                 print("... Please enter in one of the valid options.")
 
