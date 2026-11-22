@@ -1,7 +1,15 @@
 import argparse
+import psutil
 
-from utils.authentication import getAuthToken
-from utils.recording import idk 
+from pathlib import Path
+
+
+import subprocess
+import sys
+
+import utils.authentication 
+import utils.recording
+import utils.upload
 
 
 # Variables
@@ -21,6 +29,31 @@ def main():
     print(args)
     if (args.option == "config"):
         if (args.secondaryAction == "token"):
-            getAuthToken(api_url, port)
+            utils.authentication.getAuthToken(api_url, port)
+    elif (args.option == "timelapse"):
+        if (args.secondaryAction == "record"):
+            subprocess.Popen(
+                [sys.executable, "-m", "utils.recording"],
+                start_new_session=True
+            )
+        elif (args.secondaryAction == "stop"):
+            pidPath = Path(__file__).resolve().parent / "temp" / "recorderPID"
+            try:
+                with open(pidPath, "r") as file:
+                    psutil.Process(int(file.readline())).terminate()
+            except Exception as e:
+                print(e)
+                pass
+        elif (args.secondaryAction == "upload"):
+            print("This will upload only the newest output.mkv.")
+            print("This will also only create a draft in Lapse. You will have to edit the video manually at lapse.hackclub.com.")
+            yarr = input("Are you sure you want to do this? [Y|n]")
+            if yarr.lower() == ("n" or "no"):
+                print("Upload cancelled. Your video has not been modified.")
+            elif yarr.lower() == ("y" or "yes" or "") :
+                print("Got it!") 
+                utils.upload.initialize()
+            else:
+                print("... Please enter in one of the valid options.")
 
 main()

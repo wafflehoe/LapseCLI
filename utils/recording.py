@@ -7,12 +7,14 @@ import asyncio
 import time
 import numpy
 
+#for threading can u believe it
+import threading
+
 # config stuff
 from pathlib import Path
 import json
+import os
 
-
-recording = False
 recordingFPS = 6
 
 outputPath = Path(__file__).resolve().parent.parent / "temp" / "output.mkv"
@@ -30,6 +32,9 @@ def beginRecording():
     if (not writer):
         print("Something went wrong, and the video writer did not start.")
         return
+    pidPath = Path(__file__).resolve().parent.parent / "temp" / "recorderPID"
+    with open(pidPath, "w") as file:
+        file.write(str(os.getpid()))
     try:
         with MSS() as sct:
             while True:
@@ -69,3 +74,7 @@ def initialize():
             "-pix_fmt", "yuv420p"
         ]
     )
+
+if __name__ == "__main__":
+    initialize()
+    beginRecording()

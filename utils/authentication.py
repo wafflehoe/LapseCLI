@@ -12,6 +12,10 @@ import secrets
 import hashlib
 import base64
 
+#for config
+import pathlib
+import json
+
 def generatePKCE():
     code_verifier = secrets.token_urlsafe(64)
     return code_verifier
