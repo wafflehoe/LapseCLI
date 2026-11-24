@@ -19,11 +19,12 @@ dependencies = [
 lapseCLI = "lapseCLI:main"
 
 [tool.setuptools]
-py-modules = ["lapseCLI"]
+packages = ["lapseCLI", "lapseCLI.utils"]
+include-package-data = true
 
-[tool.setuptools.packages.find]
-where=[".."]
-include = ["utils*"]
+[tool.setuptools.package-dir]
+lapseCLI = ".."
 
 [tool.setuptools.package-data]
-"*" = ["config/*", "temp/*"]
+lapseCLI = ["config/*", "config/**/*", "temp/*", "temp/**/*"]
+"lapseCLI.utils" = ["*"]
