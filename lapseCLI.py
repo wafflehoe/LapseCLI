@@ -8,7 +8,7 @@ import subprocess
 import sys
 
 import utils.authentication
-
+import utils.recording
 
 # Variables
 lapse_api_url = "https://api.lapse.hackclub.com/api"
@@ -37,18 +37,24 @@ def main():
         #     pass
         # elif (args.Seco)
     elif (args.option == "timelapse"):
-        if (args.secondaryAction == "record"):
-            subprocess.Popen(
-                [sys.executable, "-m", "utils.recording"],
-                start_new_session=True
-            )
-        elif (args.secondaryAction == "stop"):
-            pidPath = Path(__file__).resolve().parent / "temp" / "recorderPID"
-            try:
-                with open(pidPath, "r") as file:
-                    psutil.Process(int(file.readline())).terminate()
-            except Exception as e:
-                print(e)
-                pass
+        match args.secondaryAction:
+            case "record":
+                subprocess.Popen(
+                    [sys.executable, "-m", "utils.recording"],
+                    start_new_session=True
+                )
+            case "stop":
+                pidPath = Path(__file__).resolve().parent / "temp" / "recorderPID"
+                try:
+                    with open(pidPath, "r") as file:
+                        psutil.Process(int(file.readline())).terminate()
+                except Exception as e:
+                    print(e)
+                    pass
+                utils.recording.stopRecording()
+            case "pause":
+                utils.recording.pauseRecording()
+            case "resume":
+                utils.recording.resumeRecording()
 
 main()

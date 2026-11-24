@@ -8,14 +8,17 @@ import time
 import httpx2
 from datetime import datetime, timezone
 
+# idk what to call this, its for the subprocess open thing
+import sys
+import subprocess
+
 # config stuff
 from pathlib import Path
 import json
 import os
 import psutil
 
-#temp
-import sys
+
 
 #frame stuff
 framesCaptured = 0
@@ -24,6 +27,7 @@ framesCaptured = 0
 userToken = "AhhhAlmostAlmost"
 pidPath = Path(__file__).resolve().parent.parent / "temp" / "recorderPID"
 configPath = Path(__file__).resolve().parent.parent / "config" / "userConfig.json"
+lookoutSessionPath = Path(__file__).resolve().parent.parent / "temp" / "lookoutSession.json"
 
 #api
 lapse_api_url = "https://api.lapse.hackclub.com/api"
@@ -32,6 +36,7 @@ lookout_api_url = "https://lookout.hackclub.com/api"
 def takeScreenshot(sct, token):
 
     # get upload url
+    global lookout_api_url
     isodate = datetime.now().astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
     print(isodate)
     response = httpx2.get(
@@ -68,36 +73,53 @@ def takeScreenshot(sct, token):
     )
 
 # loop that actually records video
-def beginRecording():
-    # create a lookout recording
+def beginRecording(isResuming):
+    #if this is a resume from pausing, we don't need to create a new session
+    global lookout_api_url
     lookoutSession = None
-    response = httpx2.post(
-        url= lapse_api_url + "/timelapse/createRecordingSession",
-        headers= { 
-            "Authorization": "Bearer " + userToken
-        },
-        json={
-            "mode":"screen"
+    if (not isResuming):
+        # create a lookout recording
+        lookoutSession = None
+        response = httpx2.post(
+            url= lapse_api_url + "/timelapse/createRecordingSession",
+            headers= { 
+                "Authorization": "Bearer " + userToken
+            },
+            json={
+                "mode":"screen"
+            }
+        )
+        if (response.is_error):
+            print("Error occured while starting recording. Maybe token is outdated?")
+            return
+        print(response.json())
+        lookoutSession = response.json()["data"]
+        lookout_api_url = lookoutSession["lookoutApiBaseUrl"] + "/api"
+    else:
+        #just grab the token from original session
+        with open(lookoutSessionPath, "r") as file:
+            jsonified = json.load(file)
+
+        lookoutSession = {
+            "lookoutToken": jsonified["sessionId"],
         }
-    )
-    if (response.is_error):
-        print("Error occured while starting recording. Maybe token is outdated?")
-        return
-
-    print(response.json())
-    lookoutSession = response.json()["data"]
-    lookout_api_url = lookoutSession["lookoutApiBaseUrl"] + "/api"
-
     response = httpx2.get(
         url=lookout_api_url + "/sessions/" + lookoutSession["lookoutToken"]
     )
-
     print(response.json())
+
     # write recorder path
-    pidPath = Path(__file__).resolve().parent.parent / "temp" / "recorderPID"
     with open(pidPath, "w") as file:
         file.write(str(os.getpid()))
 
+    # write lookoutSession path
+    with open(lookoutSessionPath, "r") as file:
+        jsonified = json.load(file)
+    jsonified["sessionId"] = lookoutSession["lookoutToken"]
+    with open(lookoutSessionPath, "w") as file:
+        file.write(json.dumps(jsonified))
+
+    #run loop
     try:
         with MSS() as sct:
             while True:
@@ -105,11 +127,54 @@ def beginRecording():
     except KeyboardInterrupt:
         print("Oop.")
     finally:
-        #writer.close()
+        print("What!")
         pass
 
+def stopRecording():
+    #get sessionToken
+    with open(lookoutSessionPath, "r") as file:
+        jsonified = json.load(file)
+    sessionToken = jsonified["sessionId"]
+    jsonified["sessionId"] = ""
 
+    #kill recording on lookout's servers and have them do the whole processing
+    httpx2.post(
+        url=lookout_api_url + f"/sessions/{sessionToken}/stop"
+    )
+    with open(lookoutSessionPath, "w") as file:
+        file.write(json.dumps(jsonified))
+    print("recording finished! you can see the draft in lapse.hackclub.com")
 
+def pauseRecording():
+    #get sessionToken
+    with open(lookoutSessionPath, "r") as file:
+        jsonified = json.load(file)
+    sessionToken = jsonified["sessionId"]
+
+    #stop Lookout and kill the original recording process
+    global lookout_api_url
+    httpx2.post(
+        url=lookout_api_url + f"/sessions/{sessionToken}/pause"
+    )
+    with open(pidPath, "r") as file:
+        psutil.Process(int(file.readline())).terminate()
+
+def resumeRecording():
+    #get sessionToken
+    with open(lookoutSessionPath, "r") as file:
+        jsonified = json.load(file)
+    sessionToken = jsonified["sessionId"]
+
+    #restart lookout, then call beginRecording
+    global lookout_api_url
+    httpx2.post(
+        url=lookout_api_url + f"/sessions/{sessionToken}/resume"
+    )
+    subprocess.Popen(
+        [sys.executable, "-m", "utils.recording"],
+        start_new_session=True
+    )
+    
 def initialize():
     global userToken
     try:
@@ -126,5 +191,12 @@ if __name__ == "__main__":
         if psutil.pid_exists(int(file.readlines()[0])):
             print("cannot start two recordings at once, try again after running 'timelapse stop'")
             sys.exit()
-    initialize()
-    beginRecording()
+    with open(lookoutSessionPath, "r") as file:
+        jsonified = json.load(file)
+    if (jsonified["sessionId"] != ""):
+        print("previous session detected! restarting lookout from that session id.")
+        beginRecording(True) 
+    else:
+        print("beginning recording!")
+        initialize()
+        beginRecording(False)
