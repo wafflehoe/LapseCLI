@@ -12,7 +12,7 @@ There are currently two ways of installing LapseCLI. One of them is from source,
 
 1. Install this GitHub repo with this command:
 ```bash
-pip install "git+https://github.com/wafflehoe/lapseCLI.git"
+pip install "git+https://github.com/wafflehoe/LapseCLI.git"
 ```
 2. Wait for it to finish installing all dependencies.
 3. Run `lapseCLI` with the arguments found below.
