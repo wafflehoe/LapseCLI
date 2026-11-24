@@ -42,7 +42,8 @@ def main():
             case "record":
                 subprocess.Popen(
                     [sys.executable, "-m", "utils.recording"],
-                    start_new_session=True
+                    start_new_session=True,
+                    cwd=currentPath
                 )
             case "stop":
                 pidPath = Path(__file__).resolve().parent / "temp" / "recorderPID"
@@ -56,7 +57,7 @@ def main():
             case "pause":
                 utils.recording.pauseRecording()
             case "resume":
-                utils.recording.resumeRecording()
-                
+                utils.recording.resumeRecording(currentPath)
+
 if __name__ == "__main__":
     main()

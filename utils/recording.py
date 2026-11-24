@@ -178,7 +178,7 @@ def pauseRecording():
     with open(pidPath, "r") as file:
         psutil.Process(int(file.readline())).terminate()
 
-def resumeRecording():
+def resumeRecording(currentPath):
     #get sessionToken
     with open(lookoutSessionPath, "r") as file:
         jsonified = json.load(file)
@@ -193,7 +193,8 @@ def resumeRecording():
     )
     subprocess.Popen(
         [sys.executable, "-m", "utils.recording"],
-        start_new_session=True
+        start_new_session=True,
+        cwd=currentPath
     )
     
 def initialize():
