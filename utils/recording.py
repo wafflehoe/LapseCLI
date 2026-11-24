@@ -164,7 +164,9 @@ def resumeRecording():
     with open(lookoutSessionPath, "r") as file:
         jsonified = json.load(file)
     sessionToken = jsonified["sessionId"]
-
+    if sessionToken == "":
+        print("no recording to resume, please use 'timelapse record'!")
+        return
     #restart lookout, then call beginRecording
     global lookout_api_url
     httpx2.post(

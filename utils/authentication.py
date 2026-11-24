@@ -90,3 +90,25 @@ def getAuthToken(api_url, port):
     
     pass
 
+def whoami(api_url):
+    with open(configPath,"r") as file:
+        jsonified = json.load(file)
+
+    response = httpx2.get(
+        url = api_url + "/user/myself", 
+        headers={
+            "Authorization": "Bearer " + jsonified["userToken"]
+        }
+    ).json()["data"]["user"]
+    print(f"""
+    info about u!
+    name: {response["displayName"]},
+    handle: {response["handle"]},
+    bio: {response["bio"]},
+    id: "{response["id"]}",
+
+    so, hello! please read the docs before using this, and report any bugs to the github. 
+    i will respond as long as im in hack club (which, my stay will end in july 2029. you got time i think)
+
+""")
+

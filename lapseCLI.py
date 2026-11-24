@@ -28,14 +28,10 @@ def main():
     print(args)
     if (args.option == "config"):
         match args.secondaryAction:
-            case "token":   
+            case "authenticate":   
                 utils.authentication.getAuthToken(lapse_api_url, port)
-        # if (args.secondaryAction == "token"):
-        #     utils.authentication.getAuthToken(api_url, port)
-        # elif (args.secondaryAction == "register"):
-        #     utils.authentication.registerDevice(api_url)
-        #     pass
-        # elif (args.Seco)
+            case "whoami":
+                utils.authentication.whoami(lapse_api_url)
     elif (args.option == "timelapse"):
         match args.secondaryAction:
             case "record":
