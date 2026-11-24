@@ -10,21 +10,21 @@ import sys
 import utils.authentication
 import utils.recording
 
-# Variables
-lapse_api_url = "https://api.lapse.hackclub.com/api"
-lookout_api_url = "https://lookout.hackclub.com/api"
-auth_url = "https://hackatime.hackclub.com"
-port = 8081
 
-parser = argparse.ArgumentParser(description="Interact with Lapse without Lookout.")
-
-# TODO: add arguments
-parser.add_argument("option", type=str, help="")
-parser.add_argument("secondaryAction", type=str)
-
-args = parser.parse_args()
 
 def main():
+    # Variables
+    lapse_api_url = "https://api.lapse.hackclub.com/api"
+    port = 8081
+
+    parser = argparse.ArgumentParser(description="Interact with Lapse without Lookout.")
+
+    # TODO: add arguments
+    parser.add_argument("option", type=str, help="")
+    parser.add_argument("secondaryAction", type=str)
+
+    args = parser.parse_args()
+
     if (args.option == "config"):
         match args.secondaryAction:
             case "authenticate":   

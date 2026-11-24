@@ -15,6 +15,9 @@ dependencies = [
     "psutil==7.2.2",
 ]
 
+[project.scripts]
+lapse-cli = "lapseCLI:main"
+
 [tool.setuptools]
 py-modules = ["lapseCLI"]
 
