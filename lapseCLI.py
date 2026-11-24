@@ -12,7 +12,7 @@ def main():
     # fix issues with pip
     currentPath = os.path.dirname(os.path.abspath(__file__))
     if (currentPath not in sys.path):
-        sys.path.insert(currentPath)
+        sys.path.insert(0, currentPath)
         
     import utils.authentication
     import utils.recording
