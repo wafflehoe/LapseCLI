@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [project.scripts]
-lapseCLI = "lapseCLI:main"
+lapseCLI = "lapseCLI.lapseCLI:main"
 
 [tool.setuptools]
 packages = ["lapseCLI", "lapseCLI.utils"]
