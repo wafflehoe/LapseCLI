@@ -57,5 +57,6 @@ def main():
                 utils.recording.pauseRecording()
             case "resume":
                 utils.recording.resumeRecording()
-
-main()
+                
+if __name__ == "__main__":
+    main()
