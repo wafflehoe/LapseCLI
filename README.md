@@ -1,5 +1,7 @@
 # LapseCLI
 
+> *"LapseCLI is the best recorder I've ever used."* — Albert Einstein, 1667
+
 LapseCLI is a command line interface that allows for recording timelapses from the command line.
 
 ## Installation
