@@ -12,9 +12,6 @@ import secrets
 import hashlib
 import base64
 
-#registration
-from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-
 #for config
 from pathlib import Path
 import json
@@ -36,7 +33,7 @@ def getAuthToken(api_url, port):
         client_id=client_id, 
         code_challenge_method="S256", 
         redirect_uri="http://localhost:8081", 
-        scope="timelapse:read timelapse:write snapshot:read snapshot:write")
+        scope="timelapse:read timelapse:write snapshot:read snapshot:write user:write user:read")
     uri, state = client.create_authorization_url(api_url + "/auth/authorize", code_verifier=code_verifier)
     print(uri)
 
@@ -93,21 +90,3 @@ def getAuthToken(api_url, port):
     
     pass
 
-
-# register!!! Didn't even know i had to do this btw
-
-def registerDevice(api_url):
-    key = AESGCM.generate_key(128).hex()
-
-    userToken = "YARRR"
-    with open(configPath, "r") as file:
-        jsonified = json.load(file)
-        userToken = jsonified["userToken"]
-
-    httpx2.post(
-        url=api_url + "/device/register",
-        headers= {
-            "Authorization": "Bearer " + userToken
-        }
-    )
-    pass

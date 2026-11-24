@@ -1,80 +1,130 @@
 #for RECORDING!!! Finally!
 from mss import MSS
-import imageio
-import imageio_ffmpeg
 from PIL import Image
-import asyncio
+from io import BytesIO
 import time
-import numpy
 
-#for threading can u believe it
-import threading
+#lookout api
+import httpx2
+from datetime import datetime, timezone
 
 # config stuff
 from pathlib import Path
 import json
 import os
+import psutil
 
-recordingFPS = 6
+#temp
+import sys
 
-outputPath = Path(__file__).resolve().parent.parent / "temp" / "output.mkv"
-writer = None
+#frame stuff
+framesCaptured = 0
 
-config = None
+#config
+userToken = "AhhhAlmostAlmost"
+pidPath = Path(__file__).resolve().parent.parent / "temp" / "recorderPID"
+configPath = Path(__file__).resolve().parent.parent / "config" / "userConfig.json"
 
-# writes image to video stream
-def writeVideo(screenshot):
-    writer.append_data(imageio.core.util.Image(numpy.array(screenshot)[:,:,:3][:,:,::-1]))
+#api
+lapse_api_url = "https://api.lapse.hackclub.com/api"
+lookout_api_url = "https://lookout.hackclub.com/api"
+
+def takeScreenshot(sct, token):
+
+    # get upload url
+    isodate = datetime.now().astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+    print(isodate)
+    response = httpx2.get(
+        url=lookout_api_url + f"/sessions/{token}/upload-url?capturedAt={isodate}"
+    ).json()
+    print(response)
+
+    #send image to retrieved upload url
+    monitor = sct.monitors[1]
+    screenshot = sct.grab(monitor)
+    image = Image.frombytes("RGB", screenshot.size, screenshot.bgra, "raw", "BGRX")
+    buffer = BytesIO()
+    image.save(buffer, format="JPEG", optimize=True)
+    response2 = httpx2.put(
+        url=response["uploadUrl"],
+        content=buffer.getvalue(),
+        headers={"Content-Type": "image/jpeg"},
+    )
+    print(response2.is_error)
+
+    width, height = screenshot.size
+    #send confirmation to lookout we sent image
+    response3 = httpx2.post(
+        url= lookout_api_url + f"/sessions/{token}/screenshots",
+        json={
+            "screenshotId":response["screenshotId"],
+            "width":width,
+            "height":height,
+            "fileSize": len(buffer.getvalue())
+        }
+    ).json()
+    time.sleep(
+        datetime.fromisoformat(response3["nextExpectedAt"]).timestamp() - datetime.now().timestamp()
+    )
 
 # loop that actually records video
-# TODO: make this able to be stopped with another command
 def beginRecording():
-    if (not writer):
-        print("Something went wrong, and the video writer did not start.")
+    # create a lookout recording
+    lookoutSession = None
+    response = httpx2.post(
+        url= lapse_api_url + "/timelapse/createRecordingSession",
+        headers= { 
+            "Authorization": "Bearer " + userToken
+        },
+        json={
+            "mode":"screen"
+        }
+    )
+    if (response.is_error):
+        print("Error occured while starting recording. Maybe token is outdated?")
         return
+
+    print(response.json())
+    lookoutSession = response.json()["data"]
+    lookout_api_url = lookoutSession["lookoutApiBaseUrl"] + "/api"
+
+    response = httpx2.get(
+        url=lookout_api_url + "/sessions/" + lookoutSession["lookoutToken"]
+    )
+
+    print(response.json())
+    # write recorder path
     pidPath = Path(__file__).resolve().parent.parent / "temp" / "recorderPID"
     with open(pidPath, "w") as file:
         file.write(str(os.getpid()))
+
     try:
         with MSS() as sct:
             while True:
-                time.sleep(1/recordingFPS)
-                monitor = sct.monitors[1]
-                screenshot = sct.grab(monitor)
-                writeVideo(screenshot)
+                takeScreenshot(sct, lookoutSession["lookoutToken"])
     except KeyboardInterrupt:
         print("Oop.")
     finally:
-        writer.close()
+        #writer.close()
+        pass
 
 
 
 def initialize():
-    global recordingFPS
-    global outputPath
-    global writer
+    global userToken
     try:
-        configPath = Path(__file__).resolve().parent.parent / "config" / "recordingConfig.json"
+        config = None
         with open (configPath, "r") as data:
             config = json.load(data)
-        recordingFPS = config["recordingFPS"]
-        print(recordingFPS)
+        userToken = config["userToken"]
     except Exception as e:
         print(e)
         print("Recording config doesn't exist or is corrupted. Using defaults.")
 
-    writer = imageio.get_writer(
-        outputPath,
-        fps=recordingFPS, 
-        quality=4, 
-        codec="libx264",
-        ffmpeg_params=[
-            "-crf", "32",
-            "-preset", "slow",
-            "-pix_fmt", "yuv420p"
-        ]
-    )
-
 if __name__ == "__main__":
+    with open(pidPath, "r") as file:
+        if psutil.pid_exists(int(file.readlines()[0])):
+            print("cannot start two recordings at once, try again after running 'timelapse stop'")
+            sys.exit()
     initialize()
     beginRecording()

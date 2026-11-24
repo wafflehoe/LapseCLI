@@ -7,14 +7,12 @@ from pathlib import Path
 import subprocess
 import sys
 
-import utils.authentication 
-import utils.recording
-import utils.upload
+import utils.authentication
 
 
 # Variables
-api_url = "https://api.lapse.hackclub.com/api"
-actual_url = "https://lapse.hackclub.com/api"
+lapse_api_url = "https://api.lapse.hackclub.com/api"
+lookout_api_url = "https://lookout.hackclub.com/api"
 auth_url = "https://hackatime.hackclub.com"
 port = 8081
 
@@ -29,11 +27,15 @@ args = parser.parse_args()
 def main():
     print(args)
     if (args.option == "config"):
-        if (args.secondaryAction == "token"):
-            utils.authentication.getAuthToken(api_url, port)
-        elif (args.secondaryAction == "register"):
-            utils.authentication.registerDevice(api_url)
-            pass
+        match args.secondaryAction:
+            case "token":   
+                utils.authentication.getAuthToken(lapse_api_url, port)
+        # if (args.secondaryAction == "token"):
+        #     utils.authentication.getAuthToken(api_url, port)
+        # elif (args.secondaryAction == "register"):
+        #     utils.authentication.registerDevice(api_url)
+        #     pass
+        # elif (args.Seco)
     elif (args.option == "timelapse"):
         if (args.secondaryAction == "record"):
             subprocess.Popen(
@@ -48,18 +50,5 @@ def main():
             except Exception as e:
                 print(e)
                 pass
-        elif (args.secondaryAction == "upload"):
-            print("This will upload only the newest output.mkv.")
-            print("This will also only create a draft in Lapse. You will have to edit the video manually at lapse.hackclub.com.")
-            yarr = input("Are you sure you want to do this? [Y|n]")
-            if yarr.lower() == ("n" or "no"):
-                print("Upload cancelled. Your video has not been modified.")
-            elif yarr.lower() == ("y" or "yes" or "") :
-                print("Got it!") 
-                utils.upload.initialize()
-                utils.upload.beginUpload(api_url)
-                
-            else:
-                print("... Please enter in one of the valid options.")
 
 main()
