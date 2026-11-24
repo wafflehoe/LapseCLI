@@ -35,7 +35,7 @@ def getAuthToken(api_url, port):
         redirect_uri="http://localhost:8081", 
         scope="timelapse:read timelapse:write user:read")
     uri, state = client.create_authorization_url(api_url + "/auth/authorize", code_verifier=code_verifier)
-    print("opening " + uri + "in your browser. please allow LapseCLI to use the requested permissions!")
+    print("opening " + uri + " in your browser. please allow LapseCLI to use the requested permissions!")
 
 
 
