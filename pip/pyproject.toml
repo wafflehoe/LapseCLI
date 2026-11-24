@@ -22,6 +22,7 @@ lapseCLI = "lapseCLI:main"
 py-modules = ["lapseCLI"]
 
 [tool.setuptools.packages.find]
+where=[".."]
 include = ["utils*"]
 
 [tool.setuptools.package-data]
