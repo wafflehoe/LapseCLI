@@ -19,4 +19,4 @@ dependencies = [
 py-modules = ["lapseCLI"]
 
 [tool.setuptools.packages.find]
-include = ["utils*", "config*", "temp*"]
+include = ["utils*"]
