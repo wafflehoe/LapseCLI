@@ -33,6 +33,9 @@ cd LapseCLI
 >[!NOTE]
 >On non-Windows PCs, you may need to give your terminal access to take photos of your screen. This is used only to send data directly to Lookout.
 
+>[!NOTE]
+>This will not work on the Wayland compositor. You will need to use X11 to run this program.
+
 ## Usage
 
 `python ./lapseCLI.py (config|timelapse) <action>`
@@ -62,8 +65,7 @@ From there, you can use the following commands to interact with Lapse.
 - **record**
 	- Begins a recording.
 	- Runs in the background, takes a screenshot once a minute.
-	- This will not stop with the closing of the terminal, please remember to use the stop command.
-	- The recording may crash if your internet crashes during an image upload.
+    - *Recordings will stop after 20 seconds of not being online. You will have to **resume** the recording.*
 
 - **stop**
 	- Stops the current recording.
