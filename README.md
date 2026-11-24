@@ -20,11 +20,14 @@ cd LapseCLI
 >[!NOTE]
 >On non-Windows PCs, you may need to give your terminal access to take photos of your screen. This is used only to send data directly to Lookout.
 
+>[!NOTE]
+>This will not work on the wayland compositor. You will need to use X11 to run this program.
+
 ## Usage
 
 `python ./lapseCLI.py (config|timelapse) <action>`
 
-Before you begin using the CLI, you must authenticate with your Hack Club account. This can be done by using `python ./lapseCLI.py config authenticate`, which will open a web browser asking you to accept certain permissions. Once you enter it, ./config/userConfig.json will update with your token.
+Before you begin using the CLI, you must authenticate with your Hack Club account. This can be done by using `python ./lapseCLI.py config authenticate`, which will open a web browser asking you to accept certain permissions. Once you enter it, `./config/userConfig.json` will update with your token.
 
 > [!CAUTION]
 > The token received will be stored *in plaintext.* It is recommended to remove your token after you are finished to prevent someone from gaining full access to your account.
