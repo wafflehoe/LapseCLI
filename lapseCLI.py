@@ -8,11 +8,6 @@ import subprocess
 import sys
 import os
 
-import utils.authentication
-import utils.recording
-
-
-
 def main():
     # fix issues with pip
     currentPath = os.path.dirname(os.path.abspath(__file__))
