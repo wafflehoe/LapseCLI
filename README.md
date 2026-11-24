@@ -43,6 +43,7 @@ From there, you can use the following commands to interact with Lapse.
 - **record**
 	- Begins a recording.
 	- Runs in the background, takes a screenshot once a minute.
+    - *Recordings will stop after 20 seconds of not being online. You will have to **resume** the recording.*
 
 - **stop**
 	- Stops the current recording.
