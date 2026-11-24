@@ -6,6 +6,7 @@ from pathlib import Path
 
 import subprocess
 import sys
+import os
 
 import utils.authentication
 import utils.recording
@@ -13,6 +14,14 @@ import utils.recording
 
 
 def main():
+    # fix issues with pip
+    currentPath = os.path.dirname(os.path.abspath(__file__))
+    if (currentPath not in sys.path):
+        sys.path.insert(currentPath)
+        
+    import utils.authentication
+    import utils.recording
+    
     # Variables
     lapse_api_url = "https://api.lapse.hackclub.com/api"
     port = 8081
