@@ -35,7 +35,7 @@ def getAuthToken(api_url, port):
         redirect_uri="http://localhost:8081", 
         scope="timelapse:read timelapse:write user:read")
     uri, state = client.create_authorization_url(api_url + "/auth/authorize", code_verifier=code_verifier)
-    print(uri)
+    print("opening " + uri + "in your browser. please allow LapseCLI to use the requested permissions!")
 
 
 
@@ -44,10 +44,9 @@ def getAuthToken(api_url, port):
 
     class authorizationHandler(http.server.BaseHTTPRequestHandler):
         def do_GET(self):
-            print(self.path)
+            #print(self.path)
 
             self.server.auth_code = self.path.split("?")[1].split("=")[1].split("&")[0]
-            # TODO: stop csrf attacks or somethiing like that? idk.
             threading.Thread(target=self.server.shutdown, daemon=True).start()
             
             
@@ -61,7 +60,7 @@ def getAuthToken(api_url, port):
         print("Authorization code was never gotten, please run again!")
         return
     
-    print(authorizationCode)
+    #print(authorizationCode)
 
     # get token from auth code
     response = httpx2.post(

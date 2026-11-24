@@ -25,7 +25,6 @@ parser.add_argument("secondaryAction", type=str)
 args = parser.parse_args()
 
 def main():
-    print(args)
     if (args.option == "config"):
         match args.secondaryAction:
             case "authenticate":   

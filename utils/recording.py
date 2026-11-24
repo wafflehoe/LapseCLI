@@ -34,32 +34,31 @@ lapse_api_url = "https://api.lapse.hackclub.com/api"
 lookout_api_url = "https://lookout.hackclub.com/api"
 
 def takeScreenshot(sct, token):
+    def retryFunction(function, attemptCount):
+        for _ in range(attemptCount):
+            try:
+                return function()
+            except httpx2.ConnectError:
+                print("failed to send a request! trying again in 4 seconds...")
+                time.sleep(4)
+        print("pausing recording due to severe internet issue. use 'timelapse resume' when your pc is doing better!")
+        sys.exit()
 
-    # get upload url
-    global lookout_api_url
-    isodate = datetime.now().astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
-    print(isodate)
-    response = httpx2.get(
-        url=lookout_api_url + f"/sessions/{token}/upload-url?capturedAt={isodate}"
-    ).json()
-    print(response)
+    #define httpx2 commands for retries if wifi goes out
+    def getUploadUrl():
+        return httpx2.get(
+            url=lookout_api_url + f"/sessions/{token}/upload-url?capturedAt={isodate}"
+        ).json()
 
-    #send image to retrieved upload url
-    monitor = sct.monitors[1]
-    screenshot = sct.grab(monitor)
-    image = Image.frombytes("RGB", screenshot.size, screenshot.bgra, "raw", "BGRX")
-    buffer = BytesIO()
-    image.save(buffer, format="JPEG", optimize=True)
-    response2 = httpx2.put(
+    def sendImageToR2():
+        return httpx2.put(
         url=response["uploadUrl"],
         content=buffer.getvalue(),
         headers={"Content-Type": "image/jpeg"},
     )
-    print(response2.is_error)
 
-    width, height = screenshot.size
-    #send confirmation to lookout we sent image
-    response3 = httpx2.post(
+    def sendConfirmation():
+        return httpx2.post(
         url= lookout_api_url + f"/sessions/{token}/screenshots",
         json={
             "screenshotId":response["screenshotId"],
@@ -68,6 +67,25 @@ def takeScreenshot(sct, token):
             "fileSize": len(buffer.getvalue())
         }
     ).json()
+    # get upload url
+    global lookout_api_url
+    isodate = datetime.now().astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+    response = retryFunction(getUploadUrl, 5)
+    #print(response)
+
+    #send image to retrieved upload url
+    monitor = sct.monitors[1]
+    screenshot = sct.grab(monitor)
+    image = Image.frombytes("RGB", screenshot.size, screenshot.bgra, "raw", "BGRX")
+    buffer = BytesIO()
+    image.save(buffer, format="JPEG", optimize=True)
+    response2 = retryFunction(sendImageToR2, 5)
+
+    #print(response2.is_error)
+
+    width, height = screenshot.size
+    #send confirmation to lookout we sent image
+    response3 = retryFunction(sendConfirmation, 5)
     time.sleep(
         datetime.fromisoformat(response3["nextExpectedAt"]).timestamp() - datetime.now().timestamp()
     )
@@ -92,7 +110,7 @@ def beginRecording(isResuming):
         if (response.is_error):
             print("Error occured while starting recording. Maybe token is outdated?")
             return
-        print(response.json())
+        #print(response.json())
         lookoutSession = response.json()["data"]
         lookout_api_url = lookoutSession["lookoutApiBaseUrl"] + "/api"
     else:
@@ -106,7 +124,7 @@ def beginRecording(isResuming):
     response = httpx2.get(
         url=lookout_api_url + "/sessions/" + lookoutSession["lookoutToken"]
     )
-    print(response.json())
+    #print(response.json())
 
     # write recorder path
     with open(pidPath, "w") as file:
@@ -125,9 +143,10 @@ def beginRecording(isResuming):
             while True:
                 takeScreenshot(sct, lookoutSession["lookoutToken"])
     except KeyboardInterrupt:
-        print("Oop.")
+        #print("Oop.")
+        pass
     finally:
-        print("What!")
+        #print("What!")
         pass
 
 def stopRecording():
