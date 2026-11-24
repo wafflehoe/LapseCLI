@@ -59,7 +59,7 @@ From there, you can use the following commands to interact with Lapse.
 
 - **deleteToken**
 	- Replaces the token saved at `./config/userConfig.json` with a placeholder.
-	- You will need to re-run authenticate after this.
+	- You will need to re-run **authenticate** after this.
 
 ### timelapse
 - **record**
