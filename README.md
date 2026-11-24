@@ -32,26 +32,27 @@ Before you begin using the CLI, you must authenticate with your Hack Club accoun
 From there, you can use the following commands to interact with Lapse.
 
 ### config
-* **authenticate**
-	Open an OAuth2 prompt to obtain a token to your account.
+- **authenticate**
+	- Open an OAuth2 prompt to obtain a token to your account.
 
-* **whoami**
-	Tells you basic information about yourself. 
-	This is the only reason I ask for the "user:read" scope, by the way
+- **whoami**
+	- Tells you basic information about yourself. 
+	- This is the only reason I ask for the "user:read" scope, by the way
 
 ### timelapse
-* **record**
-	Begins a recording.
-	Runs in the background, takes a screenshot once a minute.
+- **record**
+	- Begins a recording.
+	- Runs in the background, takes a screenshot once a minute.
 
-* **stop**
-	Stops the current recording.
+- **stop**
+	- Stops the current recording.
+	- This instantly sends a draft to Lapse. Be careful not to show any secrets, as editing is not supported.
 
-* **pause**
-	Pauses the current recording.
-	When paused, a recording cannot be stopped.
+- **pause**
+	- Pauses the current recording.
+	- When paused, a recording cannot be stopped.
 
-* **resume**
-	Resumes the current recording.
-	... yeah. This can only be used with an active recording.
+- **resume**
+	- Resumes the current recording.
+	- ... yeah. This can only be used with an active recording.
  
