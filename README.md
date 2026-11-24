@@ -16,7 +16,7 @@ LapseCLI is a command line interface that can interact with Hack Club's Lapse. T
 
 Before you begin using the CLI, you must authenticate with your Hack Club account. This can be done by using `[config] [authenticate]`, which will open a web browser asking you to accept certain permissions. Once you enter it, ./config/userConfig.json will update with your token.
 
-> [!WARNING]
+> [!CAUTION]
 > The token received will be stored *in plaintext.* It is recommended to remove your token after you are finished to prevent someone from gaining full access to your account.
 
 From there, you can use the following commands to interact with Lapse.
