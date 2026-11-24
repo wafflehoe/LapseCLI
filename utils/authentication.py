@@ -111,3 +111,12 @@ def whoami(api_url):
 
 """)
 
+def wipeToken():
+    with open(configPath, "r") as file:
+        jsonified = json.load(file)
+        
+    jsonified["userToken"] = "WhileTheyreOutPartyingBtw"
+
+    with open(configPath, "w") as file:
+        file.write(json.dumps(jsonified))
+

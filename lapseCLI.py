@@ -31,6 +31,8 @@ def main():
                 utils.authentication.getAuthToken(lapse_api_url, port)
             case "whoami":
                 utils.authentication.whoami(lapse_api_url)
+            case "deleteToken":
+                utils.authentication.wipeToken()
     elif (args.option == "timelapse"):
         match args.secondaryAction:
             case "record":

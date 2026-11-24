@@ -2,9 +2,22 @@
 
 > *"LapseCLI is the best recorder I've ever used."* — Albert Einstein, 1667
 
-LapseCLI is a command line interface that allows for recording Hack Club Lapse timelapses from the command line.
+LapseCLI is a command line interface that allows for recording timelapses from the command line.
 
 ## Installation
+
+There are currently two ways of installing LapseCLI. One of them is from source, and the other is from pip.
+
+### From pip
+
+1. Install this GitHub repo with this command:
+```bash
+pip install "git+https://github.com/wafflehoe/lapseCLI.git"
+```
+2. Wait for it to finish installing all dependencies.
+3. Run `lapseCLI` with the arguments found below.
+
+### From source
 
 1. Clone the GitHub repository from source and enter the folder using
 ```bash
@@ -20,12 +33,11 @@ cd LapseCLI
 >[!NOTE]
 >On non-Windows PCs, you may need to give your terminal access to take photos of your screen. This is used only to send data directly to Lookout.
 
->[!NOTE]
->This will not work on the wayland compositor. You will need to use X11 to run this program.
-
 ## Usage
 
 `python ./lapseCLI.py (config|timelapse) <action>`
+
+> *If you are using the pip version, replace `python ./lapseCLI.py` with `lapseCLI`*
 
 Before you begin using the CLI, you must authenticate with your Hack Club account. This can be done by using `python ./lapseCLI.py config authenticate`, which will open a web browser asking you to accept certain permissions. Once you enter it, `./config/userConfig.json` will update with your token.
 
@@ -42,11 +54,16 @@ From there, you can use the following commands to interact with Lapse.
 	- Tells you basic information about yourself. 
 	- This is the only reason I ask for the "user:read" scope, by the way
 
+- **deleteToken**
+	- Replaces the token saved at `./config/userConfig.json` with a placeholder.
+	- You will need to re-run authenticate after this.
+
 ### timelapse
 - **record**
 	- Begins a recording.
 	- Runs in the background, takes a screenshot once a minute.
-    - *Recordings will stop after 20 seconds of not being online. You will have to **resume** the recording.*
+	- This will not stop with the closing of the terminal, please remember to use the stop command.
+	- The recording may crash if your internet crashes during an image upload.
 
 - **stop**
 	- Stops the current recording.
