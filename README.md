@@ -8,7 +8,11 @@ LapseCLI is a command line interface that can interact with Hack Club's Lapse. T
 
 1. Clone the GitHub repository from source. 
 2. Enter into the folder.
-3. Run ./lapseCLI.py (commands here)
+3. Run `python -m venv venv`
+4. Run ./lapseCLI.py with the arguments found below.
+
+>[!NOTE]
+>This script... requires Python. I developed it on 3.15.2, but I am willing to make it compatible with 3.14 if the demand exists.
 
 ### Usage
 
@@ -42,5 +46,5 @@ timelapse
 
 * resume
 	Resumes the current recording.
-	... yeah. When running this command, there must be an active session.
+	... yeah.
  

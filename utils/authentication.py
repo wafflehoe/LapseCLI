@@ -33,7 +33,7 @@ def getAuthToken(api_url, port):
         client_id=client_id, 
         code_challenge_method="S256", 
         redirect_uri="http://localhost:8081", 
-        scope="timelapse:read timelapse:write snapshot:read snapshot:write user:write user:read")
+        scope="timelapse:read timelapse:write user:read")
     uri, state = client.create_authorization_url(api_url + "/auth/authorize", code_verifier=code_verifier)
     print(uri)
 
